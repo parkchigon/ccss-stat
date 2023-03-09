@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="com.lgu.ccss.notify.mapper.NotifyMapperAltibase">	
+
+
+<insert id="insertSmsSendQueue" parameterType="com.lgu.ccss.notify.model.SmsVO">
+		INSERT 
+			INTO TB_SMS_QUEUE (
+				MSG_ID,
+				MSG_STATUS,
+				CODE,
+				MSG_TITLE,
+				MSG_CONT,
+				MSG_TYPE,
+				RECV_PHONE_NO,
+				SEND_TYPE,
+				REG_DT,
+				REG_ID,
+				UPD_DT,
+				UPD_ID,
+				SEND_DT,
+				SVR_ID,
+				ORG_NO,
+				CALLBACK_NO,
+				SEND_TRY_CNT
+			) 
+			values
+			(
+				#{msgId},
+				#{msgStatus},
+				#{code},
+				#{msgTitle},
+				#{msgCont},
+				#{msgType},
+				#{recvPhoneNo},
+				#{sendType},
+				SYSDATE,
+				#{regId},
+				SYSDATE,
+				#{updId},
+				TO_DATE(#{sendDt},'YYYYMMDDHH24MISS'),
+				#{svrId},
+				#{orgNo},
+				#{callbackNo},
+				#{sendTryCnt}
+			)
+	</insert>
+	
+	<insert id="insertSmsSendQueue_back2" parameterType="java.util.List">
+		INSERT 
+			INTO TB_SMS_QUEUE (
+				MSG_ID,
+				MSG_STATUS,
+				CODE,
+				MSG_TITLE,
+				MSG_CONT,
+				MSG_TYPE,
+				RECV_PHONE_NO,
+				SEND_TYPE,
+				REG_DT,
+				REG_ID,
+				UPD_DT,
+				UPD_ID,
+				SEND_DT,
+				SVR_ID,
+				ORG_NO,
+				CALLBACK_NO,
+				SEND_TRY_CNT
+			) 
+			values
+		<foreach collection="list" item="item" separator="," index="index">
+			(
+				#{item.msgId},
+				#{item.msgStatus},
+				#{item.code},
+				#{item.msgTitle},
+				#{item.msgCont},
+				#{item.msgType},
+				#{item.recvPhoneNo},
+				#{item.sendType},
+				SYSDATE,
+				#{item.regId},
+				SYSDATE,
+				#{item.updId},
+				TO_DATE(#{item.sendDt},'YYYYMMDDHH24MISS'),
+				#{item.svrId},
+				#{item.orgNo},
+				#{item.callbackNo},
+				#{item.sendTryCnt})
+		</foreach>
+	</insert>
+	
+	<insert id="insertSmsSendQueue_back" parameterType="java.util.List">
+		INSERT 
+			INTO TB_SMS_QUEUE (
+				MSG_ID,
+				MSG_STATUS,
+				CODE,
+				MSG_TITLE,
+				MSG_CONT,
+				MSG_TYPE,
+				RECV_PHONE_NO,
+				SEND_TYPE,
+				REG_DT,
+				REG_ID,
+				UPD_DT,
+				UPD_ID,
+				SEND_DT,
+				SVR_ID,
+				ORG_NO,
+				CALLBACK_NO,
+				SEND_TRY_CNT
+			) 
+			select msgId, msgStatus,code,msgTitle,msgCont,msgType,recvPhoneNo,sendType,regDt,regId,updDt,updId,sendDt,svrId,orgNo,callbackNo,sendTryCnt
+		from (
+		<foreach collection="list" item="item" separator=" UNION ALL " index="index">
+			select
+				cast(#{item.msgId} as INTEGER) as msgId,
+				cast(#{item.msgStatus} as VARCHAR(4)) as msgStatus,
+				cast(#{item.code} as VARCHAR) as code,
+				cast(#{item.msgTitle} as VARCHAR) as msgTitle,
+				cast(#{item.msgCont} as VARCHAR) as msgCont,
+				cast(#{item.msgType} as VARCHAR) as msgType,
+				cast(#{item.recvPhoneNo} as VARCHAR) as recvPhoneNo,
+				cast(#{item.sendType} as VARCHAR) as sendType,
+				SYSDATE as regDt,
+				cast(#{item.regId} as VARCHAR) as regId,
+				SYSDATE as updDt,
+				cast(#{item.updId} as VARCHAR) as updId,
+				TO_DATE(cast(#{item.sendDt} as VARCHAR),'YYYYMMDDHH24MISS') as sendDt,
+				cast(#{item.svrId} as VARCHAR) as svrId,
+				cast(#{item.orgNo} as VARCHAR) as orgNo,
+				cast(#{item.callbackNo} as VARCHAR) as callbackNo,
+				cast(#{item.sendTryCnt} as INTEGER) as sendTryCnt
+			from dual
+		</foreach>
+		)
+	</insert>
+</mapper>

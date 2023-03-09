@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="com.lgu.ccss.notify.mapper.NotifyMapperOracle">	
+	
+	<resultMap id="apiCallHistVo" type="com.lgu.ccss.notify.model.ApiCallHisVO">
+		<result property="apiHisSeq" 	column="API_HIS_SEQ" />
+		<result property="membId" 	column="MEMB_ID" />
+		<result property="reqAppType" 	column="REQ_APP_TYPE" />
+		<result property="reqCtn" 	column="REQ_CTN" />
+		<result property="apiNm" 	column="API_NM" />
+		<result property="resultStatus" 	column="RESULT_STATUS" />
+		<result property="processDt" 	column="PROCESS_DT" />
+		<result property="regDt" 	column="REG_DT" />
+		<result property="wasInfo" 	column="WAS_INFO" />
+		<result property="sessionId" 	column="SESSION_ID" />
+		<result property="regId" 	column="REG_ID" />
+		<result property="membNo" 	column="MEMB_NO" />
+		<result property="elapsedTime" 	column="ELAPSED_TIME" />
+	</resultMap>
+	
+	<resultMap id="targetVo" type="com.lgu.ccss.notify.model.TargetVO">
+		<result property="mngrId" column="MNGR_ID" />
+		<result property="passWd" column="PASSWD" />
+		<result property="mngrNm" column="MNGR_NM" />
+		<result property="emailAddr" column="EMAIL_ADDR" />
+		<result property="useYn" column="USE_YN" />
+		<result property="withdrawDt" column="WITHDRAW_DT" />
+		<result property="loginFailCnt" column="LOGIN_FAIL_CNT" />
+		<result property="pwChgDt" column="PW_CHG_DT" />
+		<result property="regDt" column="REG_DT" />
+		<result property="updDt" column="UPD_DT" />
+		<result property="updId" column="UPD_ID" />
+		<result property="mngrLevel" column="MNGR_LEVEL" />
+		<result property="regId" column="REG_ID" />
+		<result property="smsCertiNo" column="SMS_CERTI_NO" />
+		<result property="smsCertiExprDt" column="SMS_CERTI_EXPR_DT" />
+		<result property="bfrPassWd" column="BFR_PASSWD" />
+		<result property="accountStatus" column="ACCOUNT_STATUS" />
+		<result property="clphNo" column="CLPH_NO" />
+		<result property="pwModeDispYn" column="PW_MOD_DISP_YN" />
+		<result property="ipAddr" column="IP_ADDR" />
+	</resultMap>
+	
+	
+	<select id="selectNotifyStat" resultMap="apiCallHistVo">
+		select 
+			API_HIS_SEQ,
+			MEMB_ID,
+			REQ_APP_TYPE,
+			REQ_CTN,
+			API_NM, 
+			RESULT_STATUS,
+			PROCESS_DT,
+			<!-- 2018.11.04 REG_DT 컬럼 삭제 (CVT)-->
+			<!-- REG_DT, -->
+			WAS_INFO,
+			SESSION_ID,
+			REG_ID,
+			MEMB_NO,
+			ELAPSED_TIME 
+		from 
+			tb_api_call_his 
+		where 
+			<!-- reg_dt <![CDATA[>=]]>  to_date(#{beforeDt},'yyyymmddhh24miss') -->
+			process_dt <![CDATA[>=]]>  to_date(#{beforeDt},'yyyymmddhh24miss')
+		and
+			<!-- reg_dt <![CDATA[<]]> to_date(#{nowDt},'yyyymmddhh24miss') -->
+			process_dt <![CDATA[<]]> to_date(#{nowDt},'yyyymmddhh24miss')
+	</select>
+	
+	<select id="selectTargetList" resultMap="targetVo">
+		select 
+			MNGR_ID,
+			PASSWD,
+			MNGR_NM,
+			EMAIL_ADDR,
+			USE_YN,
+			WITHDRAW_DT,
+			LOGIN_FAIL_CNT,
+			PW_CHG_DT,
+			REG_DT,
+			UPD_DT,
+			UPD_ID,
+			MNGR_LEVEL,
+			REG_ID,
+			SMS_CERTI_NO,
+			SMS_CERTI_EXPR_DT,
+			BFR_PASSWD,
+			ACCOUNT_STATUS,
+			CLPH_NO,
+			PW_MOD_DISP_YN,
+			IP_ADDR
+		from 
+			tb_mngr 
+		where 
+			USE_YN='Y'
+		and
+			ACCOUNT_STATUS='1'
+	</select>
+</mapper>

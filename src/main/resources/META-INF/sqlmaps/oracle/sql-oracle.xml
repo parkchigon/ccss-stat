@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+<mapper namespace="com.lgu.ccss.dbschd.mapper.oracle.OracleDAOMaster">
+	
+		<resultMap id="Partition" type="com.lgu.ccss.dbschd.model.CommonVo" >
+				<result property="partitionName"	column="PARTITION_NAME" />
+				<result property="highValue"		column="HIGH_VALUE" />
+		</resultMap>
+		
+	<!-- SELECT -->
+	<select id="getPartition" parameterType="CommonVo" resultType="int">
+		SELECT COUNT(*)
+		FROM USER_TAB_PARTITIONS
+		WHERE TABLE_NAME=#{tableName}
+		AND PARTITION_NAME = #{partitionName}
+	</select>
+	
+	<update id="createPartition" parameterType="CommonVo">
+		ALTER TABLE ${tableName} ADD PARTITION ${partitionName} VALUES LESS THAN (${highValue})
+	</update>
+	
+	<!-- <update id="deletePartition" parameterType="CommonVo">
+		ALTER TABLE ${tableName} DROP PARTITION ${partitionName} UPDATE INDEXES
+	</update> -->
+	
+	<update id="deletePartition" parameterType="CommonVo">
+		ALTER TABLE ${tableName} DROP PARTITION ${partitionName} 
+	</update>
+	
+	<select id="getExistPartitionName" parameterType="CommonVo" resultType="CommonVo">
+		SELECT PARTITION_NAME as partitionName , HIGH_VALUE as  highValue
+		FROM USER_TAB_PARTITIONS
+		WHERE TABLE_NAME=#{tableName}
+	</select>
+
+</mapper>
+	

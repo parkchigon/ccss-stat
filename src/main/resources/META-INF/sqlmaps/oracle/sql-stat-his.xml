@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="com.lgu.ccss.statistics.mapper.StatMapperOracle">	
+	
+	<resultMap id="apiCallHistVo" type="com.lgu.ccss.statistics.model.StatVO">
+		<result property="apiHisSeq" 	column="API_HIS_SEQ" />
+		<result property="membId" 	column="MEMB_ID" />
+		<result property="reqAppType" 	column="REQ_APP_TYPE" />
+		<result property="reqCtn" 	column="REQ_CTN" />
+		<result property="apiNm" 	column="API_NM" />
+		<result property="resultStatus" 	column="RESULT_STATUS" />
+		<result property="processDt" 	column="PROCESS_DT" />
+		<result property="regDt" 	column="REG_DT" />
+		<result property="wasInfo" 	column="WAS_INFO" />
+		<result property="sessionId" 	column="SESSION_ID" />
+		<result property="regId" 	column="REG_ID" />
+		<result property="membNo" 	column="MEMB_NO" />
+		<result property="elapsedTime" 	column="ELAPSED_TUME" />
+		<result property="svrId" 	column="SVR_ID" />
+	</resultMap>
+	
+	<select id="selectNotifyStat" resultMap="apiCallHistVo">
+		select 
+			api_nm, 
+			result_status,
+			elapsed_time, 
+			process_dt,
+			svr_id
+		from 
+			tb_api_call_his 
+		where 
+			SVR_ID
+			and
+			<!-- 2018.11.04 REG_DT 컬럼 삭제 (CVT)-->
+			<!-- reg_dt -->
+			process_dt 
+			between 
+				to_date(#{beforeDt},'yyyymmddhh24miss') 
+			and 
+				to_date(#{nowDt},'yyyymmddhh24miss')
+	
+	</select>
+	<insert id="insertStatHistory" parameterType="list">
+		INSERT 
+				INTO TB_API_CALL_HIS (
+				API_HIS_SEQ,
+				MEMB_ID,
+				MEMB_NO,
+				REQ_APP_TYPE,
+				REQ_CTN,
+				API_NM,
+				RESULT_STATUS,
+				PROCESS_DT,
+				ELAPSED_TIME,
+				WAS_INFO,
+				SESSION_ID,
+				<!-- 2018.11.04 REG_DT 컬럼 삭제 (CVT)-->
+				<!-- REG_DT -->
+				REG_ID,
+				DEVICE_TYPE,
+				DEVICE_MODEL_NM		<!-- 2019.01.17 신규 추가 -->
+		) select SEQ_API_CALL_HIS_01.nextval, membId,membNo,reqAppType,reqCtn,apiNm,resultStatus,processDt,elapsedTime,wasInfo,
+		sessionId,redId,deviceType,deviceModelNm
+		<!-- sessionId,regDt,redId -->
+		from (
+		<foreach collection="list" item="item" separator=" UNION ALL " index="index">
+			select
+				#{item.membId,jdbcType=VARCHAR} as membId
+				,#{item.membNo,jdbcType=VARCHAR} as membNo
+				,#{item.reqAppType,jdbcType=VARCHAR} as reqAppType
+				,#{item.reqCtn,jdbcType=VARCHAR} as reqCtn
+				,#{item.apiNm,jdbcType=VARCHAR} as apiNm
+				,#{item.resultStatus,jdbcType=VARCHAR} as resultStatus
+				,TO_TIMESTAMP(#{item.processDt},'YYYYMMDDHH24MISSFF' )as processDt
+				,#{item.elapsedTime,jdbcType=VARCHAR} as elapsedTime
+				,#{item.wasInfo,jdbcType=VARCHAR} as wasInfo
+				,#{item.sessionId,jdbcType=VARCHAR} as sessionId
+				<!-- ,SYSDATE as regDt -->
+				,#{item.redId,jdbcType=VARCHAR} as redId
+				,#{item.deviceType,jdbcType=VARCHAR} as deviceType
+				,#{item.deviceModelNm,jdbcType=VARCHAR} as deviceModelNm	<!-- 2019.01.17 신규 추가 -->
+			from dual
+		</foreach>
+		)
+	</insert>
+</mapper>
